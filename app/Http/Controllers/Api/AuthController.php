@@ -19,7 +19,6 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        // ... (Fungsi register Anda sudah benar)
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -56,7 +55,6 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // ... (Validasi dan logika Auth::attempt() Anda sudah benar) ...
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -94,12 +92,13 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        // 7. Kirim data user (tanpa dibungkus)
-        // (Kita tidak perlu User::with() karena Model User sudah punya properti $with)
-        
-        // --- PERBAIKAN DI SINI ---
-        return response()->json($user);
-        // --- BUKAN: return response()->json(['user' => $user]); ---
+        // BUAT TOKEN DAN RETURN BERSAMA USER DATA
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token
+        ]);
     }
 
     /**
@@ -107,7 +106,6 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        // ... (Fungsi logout Anda sudah benar)
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -119,11 +117,7 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        // (Kita tidak perlu User::with() karena Model User sudah punya properti $with)
-
-        // --- PERBAIKAN DI SINI ---
         return response()->json($request->user());
-        // --- BUKAN: return response()->json(['user' => $request->user()]); ---
     }
 
     /**
@@ -131,7 +125,6 @@ class AuthController extends Controller
      */
     public function getJenisDlh()
     {
-        // ... (Fungsi ini sudah benar)
         $jenis = JenisDlh::all();
         return response()->json($jenis);
     }
